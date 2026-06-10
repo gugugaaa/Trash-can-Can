@@ -1,134 +1,108 @@
 # Trash-can-Can
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.7%2B-blue)](https://www.python.org/)
-[![YOLO11](https://img.shields.io/badge/YOLO-11-green)](https://github.com/ultralytics/ultralytics)
+安徽省工创赛垃圾分类赛道,视觉和电控部分代码，支持在PC和树莓派平台上运行。
 
-AI-powered garbage classification system utilizing computer vision technology, designed to run on both PC and Raspberry Pi platforms.
+## Features
 
-## ✨ Features
+- 利用YOLO11进行实时垃圾分类
+- 跨平台支持（PC和树莓派）
+- Arduino集成，用于硬件控制
+- 视频录制功能
+- 适用于不同场景的多个预训练模型
 
-- Real-time garbage classification using YOLOv8
-- Cross-platform support (PC and Raspberry Pi)
-- Arduino integration for hardware control
-- Video recording capabilities
-- Multiple pre-trained models for different scenarios
+## Quick Start
 
-## 🚀 Quick Start
+### 环境要求
 
-### Prerequisites
+- 可在CPU上轻松运行（PC版）
+- Raspberry Pi 4（树莓派版）
+- Arduino板（可选）
 
-- Eazy to run on CPU (for PC version)
-- Raspberry Pi 4 (for Pi version)
-- Arduino board (optional)
+### 使用说明
 
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/Trash-can-Can.git
-cd Trash-can-Can
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-### Usage
-
-#### PC Version
+#### PC版
 ```bash
 python detect_pc.py [--model models/trashcan.pt] [--source 0]
 ```
 
-#### Raspberry Pi Version
+#### 树莓派版
 ```bash
 python detect_pi.py [--model models/trashcan.pt] [--source 0]
 ```
 
-#### Record Detection
+#### 录制检测结果
 ```bash
 python detect_record.py [--output output.mp4]
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
-├── detect_pc.py      # PC detection script
-├── detect_pi.py      # Raspberry Pi detection script
-├── detect_record.py  # Video recording script
-├── models/           # Pre-trained models
-├── images/           # Test images
-│   ├── origin_img/   # Original images
-│   ├── json_labels/  # Labelme JSON labels
-│   └── yolo_labels/  # YOLO format labels
-├── datasets/         # Training datasets
-│   ├── train/        # Training set
-│   └── valid/        # Validation set
-└── process_data/     # Utils to process custom data
-    └── box/          # Bounding box conversion tools
+├── detect_pc.py      # PC端检测脚本
+├── detect_pi.py      # 树莓派检测脚本
+├── detect_record.py  # 视频录制脚本
+├── models/           # 预训练模型
+├── images/           # 测试图像
+│   ├── origin_img/   # 原始图像
+│   ├── json_labels/  # Labelme JSON标签
+│   └── yolo_labels/  # YOLO格式标签
+├── datasets/         # 训练数据集
+│   ├── train/        # 训练集
+│   └── valid/        # 验证集
+└── process_data/     # 处理自定义数据的工具
+    └── box/          # 边界框转换工具
 ```
 
-## 🎯 Data Processing Guide
+## Data Processing Guide
 
-Follow these steps to process your custom dataset:
+我准备了一套数据处理管道:
 
-1. **Prepare Original Images**
-   - Place your original images in `images/origin_img/`
+1. **准备原始图像**
+   - 将原始图像放入 `images/origin_img/`
 
-2. **Label Images**
-   - Use Labelme or Label-studio to annotate images
-   - Open images from `images/origin_img/`
-   - Save JSON annotation files
+2. **标注图像**
+   - 使用 Labelme 或 Label-studio 进行标注
+   - 从 `images/origin_img/` 打开图像
+   - 保存 JSON 标注文件
 
-3. **Clean Labels**
+3. **清理未标注图像**
    ```bash
    python clear_not_labeled_img.py
    ```
-   This removes JSON files for unlabeled images
+   该命令会删除未标注图像对应的 JSON 文件
 
-4. **Organize Labels**
-   - Move all JSON label files to `images/json_labels/`
+4. **整理标签文件**
+   - 将所有 JSON 标签文件移动到 `images/json_labels/`
 
-5. **Convert to YOLO Format**
+5. **转换为 YOLO 格式**
    ```bash
    python process_data/box/labelme2yolo.py
    ```
-   This converts JSON labels to YOLO format in `images/yolo_labels/`
+   这会将 JSON 标签转换为 YOLO 格式，并保存到 `images/yolo_labels/`
 
-6. **Prepare Training Data**
-   - Copy all files from `images/origin_img/` and `images/yolo_labels/` to `datasets/train/`
+6. **准备训练数据**
+   - 将 `images/origin_img/` 和 `images/yolo_labels/` 中的所有文件复制到 `datasets/train/`
 
-7. **Split Dataset**
-   ```bash
-   python divide_train_valid.py
-   ```
-   This automatically splits data into train/valid sets
+7. **划分数据集**
+8. **数据增强**
+   - 建议在训练时划分和增强, yolo默认的增强即可
 
-8. **Data Augmentation**
-   ```bash
-   python augment_yolo.py
-   ```
-   This performs data augmentation on the training set
+9. **打包用于训练**
+   - 确保 `mydata_kaggle.yaml` 配置正确
+   - 使用 Bandizip 压缩数据集 (win11自带的会多一层目录, 导致混乱)
+   - 上传到 Kaggle 进行训练
 
-9. **Package for Training**
-   - Ensure `mydata_kaggle.yaml` is properly configured
-   - Compress the dataset using Bandizip
-   - Upload to Kaggle for training
+## Models
 
-## 🤖 Models
-
-| Model Name | Size | Description | Best For |
+| 模型名称 | 尺寸 | 描述 | 最适合 |
 |------------|------|-------------|----------|
-| trashcan.pt | 320x320 | Includes vegetables | General use |
-| trashcan_640.pt | 640x640 | Without vegetables | High accuracy |
+| trashcan.pt | 320x320 | 包含蔬菜类别 | 通用 |
+| trashcan_640.pt | 640x640 | 不含蔬菜类别 | 高准确率 |
 
+## Dataset
 
-## 📊 Dataset
-
-Our dataset is organized as follows:
+数据集组织如下：
 
 ```
 datasets/
@@ -137,28 +111,24 @@ datasets/
 └── mydata_kaggle.yaml
 ```
 
-Configuration files:
-- `mydata_kaggle.yaml`: Kaggle training configuration
+配置文件：
+- `mydata_kaggle.yaml`：Kaggle 训练配置
 
-![Dataset Visualization](assets/dataset_visualize.png)
+![数据集可视化](https://i.ibb.co/RTpCwkQB/dataset-visualize.png)
 
-## 🛠️ Development
+## Development
 
-Want to contribute? Great! I'm currently looking for contributors to help with the following:
-- Enhance robustness against various lighting conditions.
-- It's funny but serious to classify a broken China piece from a white radish bar.
+我遇到这些问题:
+- 模型在不同光照条件下的鲁棒性不足。
+- 把碎瓷片和白萝卜条区分开
 
 
-## 📝 License
+## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+本项目基于 Apache License 2.0 许可 - 详情请见 [LICENSE](LICENSE) 文件。
 
-## 🙏 Acknowledgments
+## 致谢
 
-- [Ultralytics](https://github.com/ultralytics/ultralytics) for YOLO
-- [Kaggle](https://www.kaggle.com) for GPU resources
-- Special thanks to the hardware implementation team
-
-## 📧 Contact
-
-For questions and support, please open an issue or contact the maintainers.
+- [Ultralytics](https://github.com/ultralytics/ultralytics) 提供 YOLO
+- [Kaggle](https://www.kaggle.com) 提供 GPU 资源
+- 特别感谢硬件实现团队
